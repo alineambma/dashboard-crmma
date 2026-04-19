@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRM-MA · Dashboard 2025</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -377,6 +379,12 @@
         <button class="year-sel-btn active" onclick="setYear('2025',this)">2025</button>
         <button class="year-sel-btn" onclick="setYear('2026',this)">2026</button>
       </div>
+      <button onclick="gerarPDF()" style="display:flex;align-items:center;gap:6px;background:#e53935;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;">
+        📄 PDF
+      </button>
+      <button onclick="gerarExcel()" style="display:flex;align-items:center;gap:6px;background:#1b7f3a;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;">
+        📊 Excel
+      </button>
     </div>
   </div>
 </header>
@@ -418,12 +426,14 @@
     <p>Missão institucional: disciplinar, fiscalizar e orientar o exercício da medicina, assegurando assistência ética, qualificada e segura à sociedade maranhense.</p>
     <div class="hero-stats">
       <div class="hero-stat"><div class="val">11.156</div><div class="lbl">Médicos Ativos</div></div>
+      <div class="hero-stat"><div class="val">2.682</div><div class="lbl">Registros Ativos PJ</div></div>
       <div class="hero-stat"><div class="val">1.947</div><div class="lbl">Fiscalizações</div></div>
+      <div class="hero-stat"><div class="val">75</div><div class="lbl">Sindicâncias Concluídas</div></div>
+      <div class="hero-stat"><div class="val">19</div><div class="lbl">PEPs Julgados</div></div>
       <div class="hero-stat"><div class="val">25</div><div class="lbl">Eventos de Educação</div></div>
       <div class="hero-stat"><div class="val">R$ 2,75M</div><div class="lbl">Superávit Financeiro</div></div>
       <div class="hero-stat"><div class="val">68</div><div class="lbl">Demandas COLIC</div></div>
       <div class="hero-stat"><div class="val">37</div><div class="lbl">Contratos Ativos</div></div>
-      <div class="hero-stat"><div class="val">7</div><div class="lbl">Setores Monitorados</div></div>
     </div>
   </div>
 
@@ -440,7 +450,7 @@
     <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>CODAME</h4><p>Crescimento expressivo no 2º semestre: processos gerados saltaram de 42 para 131.</p></div></div>
     <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>Educação Médica Continuada</h4><p>25 eventos realizados cobrindo ética, especialidades e atualização clínica.</p></div></div>
     <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>COLIC — Compras, Licitações e Contratos</h4><p>68 demandas tramitadas · 37 finalizadas (54,4%) · 37 contratos ativos · 4 PAS com penalidade aplicada.</p></div></div>
-    <div class="sem-card"><div class="sem-dot warn"></div><div class="sem-body"><h4>Cobrança de Anuidades — jan/2026</h4><p>PF: 71,9% recebidas · inadimplência atual 6,4% a 16,2% por exercício. PJ: 64,6% recebidas · inadimplência até 21,8%.</p></div></div>
+    <div class="sem-card"><div class="sem-dot warn"></div><div class="sem-body"><h4>Cobrança de Anuidades — jan/2026</h4><p>PF: — · inadimplência: —. PJ: — · inadimplência: —. Dados a serem preenchidos.</p></div></div>
   </div>
 
   <!-- KPIs consolidados -->
@@ -461,7 +471,7 @@
     <div class="kpi-card"><div class="kpi-icon green">📑</div><div class="kpi-label">Contratos Ativos</div><div class="kpi-value">37</div><div class="kpi-sub">CT, NE e ARP vigentes</div><span class="kpi-badge ok">Gerenciados</span></div>
     <div class="kpi-card"><div class="kpi-icon yellow">📊</div><div class="kpi-label">Anuidades PF — Recebidas</div><div class="kpi-value">71,9%</div><div class="kpi-sub">33.785 de 46.973 geradas</div><span class="kpi-badge warn">Inadimp: 28,1%</span></div>
     <div class="kpi-card"><div class="kpi-icon yellow">🏷</div><div class="kpi-label">Anuidades PJ — Recebidas</div><div class="kpi-value">64,6%</div><div class="kpi-sub">8.026 de 12.432 geradas</div><span class="kpi-badge alert">Inadimp: 35,4%</span></div>
-    <div class="kpi-card"><div class="kpi-icon blue">⚠️</div><div class="kpi-label">PAS Instaurados</div><div class="kpi-value">4</div><div class="kpi-sub">Todos com penalidade aplicada</div><span class="kpi-badge warn">Multas em cobrança</span></div>
+    <div class="kpi-card"><div class="kpi-icon blue">⚠️</div><div class="kpi-label">Proc. Consulta</div><div class="kpi-value">21</div><div class="kpi-sub">Instaurados em 2025</div><span class="kpi-badge ok">Gerenciados</span></div>
   </div>
 
   <div class="charts-grid" style="margin-top:8px">
@@ -469,21 +479,6 @@
       <div class="card-title">Comparativo Semestral — Indicadores Chave</div>
       <div class="card-subtitle">1º vs 2º Semestre 2025</div>
       <div class="chart-wrap md"><canvas id="chartOverview"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Aderência às Metas por Setor</div>
-      <div class="card-subtitle">Percentual de alcance dos principais indicadores</div>
-      <div class="chart-wrap md"><canvas id="chartMetas"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">COLIC — Status das Demandas 2025</div>
-      <div class="card-subtitle">68 processos tramitados no exercício</div>
-      <div class="chart-wrap md"><canvas id="chartOverviewColic"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Arrecadação de Anuidades — jan/2026</div>
-      <div class="card-subtitle">Posição de recebimento PF e PJ por exercício</div>
-      <div class="chart-wrap md"><canvas id="chartOverviewAnuid"></canvas></div>
     </div>
   </div>
 </div>
@@ -1320,251 +1315,60 @@
     <h2>Resultados CRM-MA 2026 — 1º Trimestre</h2>
     <p>Dados consolidados Jan–Abr · Cartorial Jan/Fev · Financeiro Jan/Mar · DEFIS, CODAME, EMC, Proc. Éticos e Proc. Consulta atualizados</p>
     <div class="hero-stats">
-      <div class="hero-stat"><div class="val">313</div><div class="lbl">Vistorias</div></div>
-      <div class="hero-stat"><div class="val">283</div><div class="lbl">Inscrições PF</div></div>
-      <div class="hero-stat"><div class="val">8</div><div class="lbl">Eventos EMC</div></div>
-      <div class="hero-stat"><div class="val">+R$2,67M</div><div class="lbl">Superávit Jan/Fev</div></div>
-      <div class="hero-stat"><div class="val">7</div><div class="lbl">Setores</div></div>
+      <div class="hero-stat"><div class="val">—</div><div class="lbl">Médicos Ativos</div></div>
+      <div class="hero-stat"><div class="val">—</div><div class="lbl">Registros Ativos PJ</div></div>
+      <div class="hero-stat"><div class="val">313</div><div class="lbl">Fiscalizações</div></div>
+      <div class="hero-stat"><div class="val">21</div><div class="lbl">Sindicâncias Concluídas</div></div>
+      <div class="hero-stat"><div class="val">2</div><div class="lbl">PEPs Julgados</div></div>
+      <div class="hero-stat"><div class="val">8</div><div class="lbl">Eventos de Educação</div></div>
+      <div class="hero-stat"><div class="val">R$ 3,43M</div><div class="lbl">Superávit Financeiro</div></div>
+      <div class="hero-stat"><div class="val">34</div><div class="lbl">Demandas COLIC</div></div>
+      <div class="hero-stat"><div class="val">52</div><div class="lbl">Contratos Ativos</div></div>
     </div>
   </div>
 
-  <!-- Semáforo por setor -->
-  <div class="kpi-grid">
-    <div class="kpi-card" onclick="showTabById('cart2026')" style="cursor:pointer">
-      <div class="kpi-icon green">🏛️</div>
-      <div class="kpi-label">Cartorial</div>
-      <div class="kpi-value accent" style="font-size:16px">283 PF · 88 PJ</div>
-      <div class="kpi-sub">Receita R$ 728k · Jan+Fev 2026</div>
-      <span class="kpi-badge ok">✓ Jan/Fev</span>
-    </div>
-    <div class="kpi-card" onclick="showTabById('fiscalizacao26')" style="cursor:pointer">
-      <div class="kpi-icon blue">🔍</div>
-      <div class="kpi-label">Fiscalização</div>
-      <div class="kpi-value accent" style="font-size:16px">313 vistorias</div>
-      <div class="kpi-sub">Agente: 270 · Médico: 43 · 26 municípios · 1.274 irregul.</div>
-      <span class="kpi-badge ok">✓ 1º Trimestre</span>
-    </div>
-    <div class="kpi-card" onclick="showTabById('etico26')" style="cursor:pointer">
-      <div class="kpi-icon yellow">⚖️</div>
-      <div class="kpi-label">Processos Éticos</div>
-      <div class="kpi-value accent" style="font-size:16px">23 SIND · 2 PEPs</div>
-      <div class="kpi-sub">Instauradas · 21 julgadas · 95 em trâmite</div>
-      <span class="kpi-badge ok">✓ Jan–Abr/2026</span>
-    </div>
-    <div class="kpi-card" onclick="showTabById('codame26')" style="cursor:pointer">
-      <div class="kpi-icon blue">📋</div>
-      <div class="kpi-label">CODAME</div>
-      <div class="kpi-value accent" style="font-size:16px">132 gerados</div>
-      <div class="kpi-sub">24 recebidos · 162 ofícios · 40 esclarec.</div>
-      <span class="kpi-badge ok">✓ 1º Trimestre</span>
-    </div>
-    <div class="kpi-card" onclick="showTabById('educacao26')" style="cursor:pointer">
-      <div class="kpi-icon green">🎓</div>
-      <div class="kpi-label">Educação Médica</div>
-      <div class="kpi-value accent" style="font-size:16px">8 eventos</div>
-      <div class="kpi-sub">São Luís (7) · Imperatriz (1) · 2 reuniões</div>
-      <span class="kpi-badge ok">✓ 1º Trimestre</span>
-    </div>
-    <div class="kpi-card" onclick="showTabById('fin2026')" style="cursor:pointer">
-      <div class="kpi-icon green">💰</div>
-      <div class="kpi-label">Financeiro</div>
-      <div class="kpi-value accent" style="font-size:16px">+R$ 2,67M</div>
-      <div class="kpi-sub">Superávit Jan/Fev · Receita R$ 3,9M</div>
-      <span class="kpi-badge ok">✓ Jan/Fev</span>
-    </div>
-    <div class="kpi-card" onclick="showTabById('colic26')" style="cursor:pointer">
-      <div class="kpi-icon yellow">📝</div>
-      <div class="kpi-label">COLIC</div>
-      <div class="kpi-value accent" style="font-size:16px">34 processos</div>
-      <div class="kpi-sub">29 em andamento · 52 contratos · 4 PAS</div>
-      <span class="kpi-badge ok">✓ Mar/2026</span>
-    </div>
-    <div class="kpi-card" onclick="showTabById('consulta26')" style="cursor:pointer">
-      <div class="kpi-icon blue">📋</div>
-      <div class="kpi-label">Proc. Consulta</div>
-      <div class="kpi-value accent" style="font-size:16px">9 instaurados</div>
-      <div class="kpi-sub">31 em trâmite · Média 2,2/mês · 0 aprovados</div>
-      <span class="kpi-badge ok">✓ Jan–Abr/2026</span>
-    </div>
+  <div class="page-title" style="margin-bottom:20px">
+    <h2 style="font-size:20px">Status por Setor</h2>
+    <p>Avaliação consolidada do desempenho em relação às metas estabelecidas</p>
   </div>
 
-  <!-- Tabela consolidada por setor -->
-  <div class="card" style="margin-top:8px">
-    <div class="card-title">Consolidado por Setor — 1º Trimestre 2026</div>
-    <div class="card-subtitle" style="margin-bottom:16px">Principais indicadores disponíveis · clique em cada linha para acessar a aba</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>Setor</th><th>Indicador Principal</th><th style="text-align:right">Resultado</th><th>Referência 2025</th><th style="text-align:center">Status</th></tr>
-        </thead>
-        <tbody>
-          <tr onclick="showTabById('cart2026')" style="cursor:pointer">
-            <td><strong>Cartorial PF</strong></td>
-            <td>Novas inscrições Jan+Fev</td>
-            <td class="ok" style="text-align:right;font-weight:600">283</td>
-            <td class="muted">1.522 / ano</td>
-            <td style="text-align:center"><span class="kpi-badge ok">Acima de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('cart2026')" style="cursor:pointer">
-            <td><strong>Cartorial PJ</strong></td>
-            <td>Novos registros Jan+Fev</td>
-            <td class="ok" style="text-align:right;font-weight:600">88</td>
-            <td class="muted">446 / ano</td>
-            <td style="text-align:center"><span class="kpi-badge ok">Acima de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('cart2026')" style="cursor:pointer">
-            <td><strong>Cartorial</strong></td>
-            <td>Receita total Jan+Fev</td>
-            <td class="ok" style="text-align:right;font-weight:600">R$ 728.447</td>
-            <td class="muted">—</td>
-            <td style="text-align:center"><span class="kpi-badge ok">✓</span></td>
-          </tr>
-          <tr onclick="showTabById('fiscalizacao26')" style="cursor:pointer">
-            <td><strong>Fiscalização</strong></td>
-            <td>Total vistorias 1º Tri</td>
-            <td class="ok" style="text-align:right;font-weight:600">313</td>
-            <td class="muted">1.947 / ano (2025)</td>
-            <td style="text-align:center"><span class="kpi-badge ok">Agente + Médico</span></td>
-          </tr>
-          <tr onclick="showTabById('fiscalizacao26')" style="cursor:pointer">
-            <td><strong>Fiscalização</strong></td>
-            <td>Municípios fiscalizados</td>
-            <td style="text-align:right;font-weight:600">26</td>
-            <td class="muted">145 / ano (2025)</td>
-            <td style="text-align:center"><span class="kpi-badge warn">1º Tri</span></td>
-          </tr>
-          <tr onclick="showTabById('fiscalizacao26')" style="cursor:pointer">
-            <td><strong>Fiscalização</strong></td>
-            <td>Irregularidades identificadas</td>
-            <td class="warn" style="text-align:right;font-weight:600">1.274</td>
-            <td class="muted">—</td>
-            <td style="text-align:center"><span class="kpi-badge warn">655 Ag + 619 Méd</span></td>
-          </tr>
-          <tr onclick="showTabById('fiscalizacao26')" style="cursor:pointer">
-            <td><strong>Fiscalização</strong></td>
-            <td>Recomendações emitidas</td>
-            <td style="text-align:right;font-weight:600">162</td>
-            <td class="muted">—</td>
-            <td style="text-align:center"><span class="kpi-badge warn">0% acatamento</span></td>
-          </tr>
-          <tr onclick="showTabById('etico26')" style="cursor:pointer">
-            <td><strong>Proc. Éticos</strong></td>
-            <td>SIND instauradas Jan–Abr</td>
-            <td class="ok" style="text-align:right;font-weight:600">23</td>
-            <td class="muted">100 instauradas / 2025</td>
-            <td style="text-align:center"><span class="kpi-badge warn">23% de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('etico26')" style="cursor:pointer">
-            <td><strong>Proc. Éticos</strong></td>
-            <td>SIND julgadas Jan–Abr</td>
-            <td class="ok" style="text-align:right;font-weight:600">21</td>
-            <td class="muted">75 concluídas / 2025</td>
-            <td style="text-align:center"><span class="kpi-badge ok">28% de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('etico26')" style="cursor:pointer">
-            <td><strong>Proc. Éticos</strong></td>
-            <td>PEPs julgados Jan–Abr</td>
-            <td class="ok" style="text-align:right;font-weight:600">2</td>
-            <td class="muted">19 julgados / 2025</td>
-            <td style="text-align:center"><span class="kpi-badge ok">✓</span></td>
-          </tr>
-          <tr onclick="showTabById('codame26')" style="cursor:pointer">
-            <td><strong>CODAME</strong></td>
-            <td>Processos gerados 1º Tri</td>
-            <td class="ok" style="text-align:right;font-weight:600">132</td>
-            <td class="muted">173 / ano</td>
-            <td style="text-align:center"><span class="kpi-badge ok">76% de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('codame26')" style="cursor:pointer">
-            <td><strong>CODAME</strong></td>
-            <td>Ofícios gerados 1º Tri</td>
-            <td class="ok" style="text-align:right;font-weight:600">162</td>
-            <td class="muted">420 / ano</td>
-            <td style="text-align:center"><span class="kpi-badge ok">39% de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('codame26')" style="cursor:pointer">
-            <td><strong>CODAME</strong></td>
-            <td>Esclarecimentos (PF + PJ)</td>
-            <td class="ok" style="text-align:right;font-weight:600">40</td>
-            <td class="muted">—</td>
-            <td style="text-align:center"><span class="kpi-badge ok">✓</span></td>
-          </tr>
-          <tr onclick="showTabById('educacao26')" style="cursor:pointer">
-            <td><strong>Educação Médica</strong></td>
-            <td>Eventos realizados 1º Tri</td>
-            <td class="ok" style="text-align:right;font-weight:600">8</td>
-            <td class="muted">25 / ano</td>
-            <td style="text-align:center"><span class="kpi-badge ok">32% de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('educacao26')" style="cursor:pointer">
-            <td><strong>Educação Médica</strong></td>
-            <td>Média eventos/mês</td>
-            <td class="ok" style="text-align:right;font-weight:600">2,7</td>
-            <td class="muted">2,1 / mês</td>
-            <td style="text-align:center"><span class="kpi-badge ok">+28% vs 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('fin2026')" style="cursor:pointer">
-            <td><strong>Financeiro</strong></td>
-            <td>Receita Jan+Fev</td>
-            <td class="ok" style="text-align:right;font-weight:600">R$ 3.900.487</td>
-            <td class="muted">R$ 11,62M / ano</td>
-            <td style="text-align:center"><span class="kpi-badge ok">✓</span></td>
-          </tr>
-          <tr onclick="showTabById('fin2026')" style="cursor:pointer">
-            <td><strong>Financeiro</strong></td>
-            <td>Superávit Jan+Fev</td>
-            <td class="ok" style="text-align:right;font-weight:600">+R$ 2.671.238</td>
-            <td class="muted">+R$ 2,75M / ano</td>
-            <td style="text-align:center"><span class="kpi-badge ok">97% de 2025</span></td>
-          </tr>
-          <tr onclick="showTabById('colic26')" style="cursor:pointer">
-            <td><strong>COLIC</strong></td>
-            <td>Processos em andamento</td>
-            <td class="ok" style="text-align:right;font-weight:600">29</td>
-            <td class="muted">26 em andamento / 2025</td>
-            <td style="text-align:center"><span class="kpi-badge ok">✓</span></td>
-          </tr>
-          <tr onclick="showTabById('colic26')" style="cursor:pointer">
-            <td><strong>COLIC</strong></td>
-            <td>Contratos vigentes</td>
-            <td class="ok" style="text-align:right;font-weight:600">52</td>
-            <td class="muted">37 / 2025</td>
-            <td style="text-align:center"><span class="kpi-badge ok">+40%</span></td>
-          </tr>
-          <tr onclick="showTabById('consulta26')" style="cursor:pointer">
-            <td><strong>Proc. Consulta</strong></td>
-            <td>Instaurados Jan–Abr</td>
-            <td class="ok" style="text-align:right;font-weight:600">9</td>
-            <td class="muted">21 / 2025</td>
-            <td style="text-align:center"><span class="kpi-badge ok">Média 2,2/mês</span></td>
-          </tr>
-          <tr onclick="showTabById('consulta26')" style="cursor:pointer">
-            <td><strong>Proc. Consulta</strong></td>
-            <td>Em trâmite (final Abr)</td>
-            <td class="warn" style="text-align:right;font-weight:600">31</td>
-            <td class="muted">—</td>
-            <td style="text-align:center"><span class="kpi-badge warn">0 aprovados</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="sem-grid">
+    <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>Cartorial — Registro Médico</h4><p>283 novas inscrições PF em Jan+Fev. Ritmo acima de 2025 (média ~47/mês vs 127/semestre).</p></div></div>
+    <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>Cartorial — Registro de Empresas</h4><p>88 novos registros PJ em Jan+Fev. Receita cartorial R$ 728k. Satisfação PJ aguardando apuração.</p></div></div>
+    <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>Fiscalização — DEFIS</h4><p>313 vistorias no 1º trimestre (270 agentes + 43 médicos). 26 municípios cobertos. 1.274 irregularidades identificadas.</p></div></div>
+    <div class="sem-card"><div class="sem-dot warn"></div><div class="sem-body"><h4>Processos Éticos / Sindicâncias</h4><p>23 sindicâncias instauradas · 21 julgadas em Jan–Abr. PEPs julgados: 2. 95 em trâmite.</p></div></div>
+    <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>CODAME</h4><p>132 processos gerados e 162 ofícios no 1º trimestre. 40 esclarecimentos. Ritmo forte.</p></div></div>
+    <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>Educação Médica Continuada</h4><p>8 eventos realizados no 1º trimestre (São Luís: 7 · Imperatriz: 1). Média 2,7/mês, acima de 2025.</p></div></div>
+    <div class="sem-card"><div class="sem-dot ok"></div><div class="sem-body"><h4>COLIC — Compras, Licitações e Contratos</h4><p>34 processos · 29 em andamento · 52 contratos vigentes (+40% vs 2025) · 4 PAS instaurados.</p></div></div>
+    <div class="sem-card"><div class="sem-dot warn"></div><div class="sem-body"><h4>Cobrança de Anuidades — 2026</h4><p>PF: — · inadimplência: —. PJ: — · inadimplência: —. Dados a serem preenchidos.</p></div></div>
+  </div>
+
+  <!-- KPIs consolidados 2026 -->
+  <div class="page-title" style="margin-bottom:16px; margin-top:8px">
+    <h2 style="font-size:20px">Indicadores Consolidados</h2>
+    <p>Números-chave de todos os setores · 1º Trimestre 2026</p>
+  </div>
+
+  <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));">
+    <div class="kpi-card"><div class="kpi-icon green">👨‍⚕️</div><div class="kpi-label">Médicos Ativos</div><div class="kpi-value muted">—</div><div class="kpi-sub">Ref. 2025: 11.156 · Meta: &gt;11.000</div><span class="kpi-badge warn">Aguardando</span></div>
+    <div class="kpi-card"><div class="kpi-icon green">🔍</div><div class="kpi-label">Fiscalizações Realizadas</div><div class="kpi-value">313</div><div class="kpi-sub">Agente: 270 · Médico: 43</div><span class="kpi-badge ok">1º Trimestre</span></div>
+    <div class="kpi-card"><div class="kpi-icon blue">🏢</div><div class="kpi-label">Empresas Registradas</div><div class="kpi-value">88</div><div class="kpi-sub">Jan: 39 · Fev: 49</div><span class="kpi-badge ok">Jan/Fev</span></div>
+    <div class="kpi-card"><div class="kpi-icon blue">⚖️</div><div class="kpi-label">Sindicâncias Instauradas</div><div class="kpi-value">23</div><div class="kpi-sub">21 julgadas · 95 em trâmite</div><span class="kpi-badge ok">Jan–Abr</span></div>
+    <div class="kpi-card"><div class="kpi-icon green">📋</div><div class="kpi-label">Processos CODAME Gerados</div><div class="kpi-value">132</div><div class="kpi-sub">162 ofícios · 40 esclarec.</div><span class="kpi-badge ok">1º Trimestre</span></div>
+    <div class="kpi-card"><div class="kpi-icon blue">🎓</div><div class="kpi-label">Eventos Ed. Médica</div><div class="kpi-value">8</div><div class="kpi-sub">São Luís (7) · Imperatriz (1)</div><span class="kpi-badge ok">✓ Realizado</span></div>
+    <div class="kpi-card"><div class="kpi-icon green">💰</div><div class="kpi-label">Superávit Financeiro</div><div class="kpi-value">R$ 3,43M</div><div class="kpi-sub">Receita: R$ 5,47M · Jan/Mar</div><span class="kpi-badge ok">✓ Positivo</span></div>
+    <div class="kpi-card"><div class="kpi-icon blue">📦</div><div class="kpi-label">Demandas COLIC</div><div class="kpi-value">34</div><div class="kpi-sub">29 em andamento · 4 PAS</div><span class="kpi-badge ok">Mar/2026</span></div>
+    <div class="kpi-card"><div class="kpi-icon green">📑</div><div class="kpi-label">Contratos Ativos</div><div class="kpi-value">52</div><div class="kpi-sub">+40% vs 2025 (37 contratos)</div><span class="kpi-badge ok">Gerenciados</span></div>
+    <div class="kpi-card"><div class="kpi-icon yellow">📊</div><div class="kpi-label">Anuidades PF — Recebidas</div><div class="kpi-value">84,08%</div><div class="kpi-sub">39.819 de 47.361 geradas</div><span class="kpi-badge ok">Posição Abr/2026</span></div>
+    <div class="kpi-card"><div class="kpi-icon yellow">🏷</div><div class="kpi-label">Anuidades PJ — Recebidas</div><div class="kpi-value">77,30%</div><div class="kpi-sub">9.735 de 12.593 geradas</div><span class="kpi-badge warn">Em aberto: 2.858</span></div>
+    <div class="kpi-card"><div class="kpi-icon blue">📋</div><div class="kpi-label">Proc. Consulta</div><div class="kpi-value">9</div><div class="kpi-sub">31 em trâmite · 0 aprovados</div><span class="kpi-badge warn">Jan–Abr</span></div>
   </div>
 
   <div class="charts-grid" style="margin-top:8px">
     <div class="card">
-      <div class="card-title">Receita vs Despesa — Jan/Fev 2026</div>
-      <div class="card-subtitle">Resultado financeiro bimestral</div>
-      <div class="chart-wrap"><canvas id="chartVG26Financeiro"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Inscrições Cartoriais — Jan/Fev 2026</div>
-      <div class="card-subtitle">PF e PJ por mês</div>
-      <div class="chart-wrap"><canvas id="chartVG26Cartorial"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Aderência às Metas 2026</div>
-      <div class="card-subtitle">Setores com dados disponíveis · 1º Trimestre</div>
-      <div class="chart-wrap"><canvas id="chartVG26Radar"></canvas></div>
+      <div class="card-title">Comparativo Semestral — Indicadores Chave</div>
+      <div class="card-subtitle">1º vs 2º Trimestre 2026 · Dados parciais</div>
+      <div class="chart-wrap md"><canvas id="chartOverview26"></canvas></div>
     </div>
   </div>
 </div>
@@ -3057,6 +2861,16 @@ chart('chartVG26Cartorial', { type:'bar', data:{
   scales:{ y:{ grid:{ color:'rgba(0,0,0,0.04)' } }, x:{ grid:{ display:false } } }
 }});
 
+chart('chartOverview26', { type:'bar', data:{
+  labels:['Médicos Ativos (÷10)','Fiscalizações','Sindicâncias','Empresas Reg.'],
+  datasets:[
+    { label:'1º Tri 2026', data:[0, 313, 23, 88], backgroundColor:ACC+'0.85)', borderRadius:5, borderWidth:0 },
+    { label:'2º Tri 2026', data:[0, 0, 0, 0], backgroundColor:GRY+'0.35)', borderRadius:5, borderWidth:0 }
+  ]
+}, options:{ responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{ position:'bottom' }, tooltip:{ callbacks:{ label: ctx => ctx.dataset.label+': '+ctx.parsed.y.toLocaleString('pt-BR') } } },
+  scales:{ y:{ grid:{ color:'rgba(0,0,0,0.04)' } }, x:{ grid:{ display:false } } } }});
+
 chart('chartVG26Radar', { type:'radar', data:{
   labels:['Cartorial PF','Cartorial PJ','Financeiro','Fiscalização','CODAME','Educação Médica','COLIC'],
   datasets:[
@@ -3066,6 +2880,13 @@ chart('chartVG26Radar', { type:'radar', data:{
 }, options:{ responsive:true, maintainAspectRatio:false,
   scales:{ r:{ min:0, max:110, ticks:{ stepSize:25, font:{ size:9 } }, grid:{ color:'rgba(0,0,0,0.06)' }, pointLabels:{ font:{ size:11 } } } },
   plugins:{ legend:{ position:'bottom' } } }});
+
+chart('chartVG26Anuid', { type:'bar', data:{
+  labels:['PF — Baixadas','PF — Em aberto','PJ — Baixadas','PJ — Em aberto'],
+  datasets:[{ data:[39819,7542,9735,2858], backgroundColor:[GRN+'0.8)',RED+'0.7)',ACC+'0.8)',RED+'0.6)'], borderRadius:5, borderWidth:0 }]
+}, options:{ responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ctx.parsed.y.toLocaleString('pt-BR') } } },
+  scales:{ y:{ grid:{ color:'rgba(0,0,0,0.04)' } }, x:{ grid:{ display:false } } } }});
 
 // ── CHARTS 2026 — FISCALIZAÇÃO ──
 const fisc26Placeholder = { type:'bar', data:{ labels:['1º Sem','2º Sem'], datasets:[{ label:'2025 (ref.)', data:[1075,872], backgroundColor:GRY+'0.4)', borderRadius:4, borderWidth:0, borderDash:[4,4] },{ label:'2026', data:[0,0], backgroundColor:ACC+'0.8)', borderRadius:4, borderWidth:0 }]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }}, scales:{ y:{ grid:{ color:'rgba(0,0,0,0.04)' }}, x:{ grid:{ display:false }}}}}; 
@@ -3320,6 +3141,291 @@ function filterColic(type, btn) {
   document.querySelectorAll('[class*="colic-"]').forEach(el=>{
     el.style.display=(type==='all'||el.classList.contains('colic-'+type))?'':'none';
   });
+}
+</script>
+<script>
+// ── GERAÇÃO DE PDF (sem html2canvas) ──
+function gerarPDF() {
+  const anoAtivo = document.querySelector('.year-sel-btn.active')?.textContent?.trim() || '2025';
+  const btn = event.currentTarget;
+  btn.textContent = '⏳ Gerando...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    try {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pW = 210, pH = 297, mg = 12, cW = pW - mg * 2;
+      const ACC = [0, 146, 99];
+      const DARK = [13, 31, 24];
+      const GRAY = [100, 110, 100];
+      const LGRAY = [230, 235, 230];
+      let y = 0;
+
+      function addHeader(first) {
+        pdf.setFillColor(...ACC);
+        pdf.rect(0, 0, pW, first ? 20 : 14, 'F');
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(first ? 13 : 10);
+        pdf.text('CRM-MA \u00B7 Vis\u00E3o Geral ' + anoAtivo, mg, first ? 13 : 10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.text('Gerado em ' + new Date().toLocaleDateString('pt-BR'), pW - mg, first ? 13 : 10, { align: 'right' });
+        y = first ? 26 : 20;
+      }
+
+      function addFooter() {
+        const total = pdf.getNumberOfPages();
+        for (let i = 1; i <= total; i++) {
+          pdf.setPage(i);
+          pdf.setDrawColor(...LGRAY);
+          pdf.line(mg, pH - 9, pW - mg, pH - 9);
+          pdf.setTextColor(...GRAY);
+          pdf.setFontSize(7.5);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text('Conselho Regional de Medicina do Maranh\u00E3o \u00B7 Gest\u00E3o 2023\u20132028', mg, pH - 5);
+          pdf.text('P\u00E1gina ' + i + ' de ' + total, pW - mg, pH - 5, { align: 'right' });
+        }
+      }
+
+      function checkPage(needed) {
+        if (y + needed > pH - 14) {
+          pdf.addPage();
+          addHeader(false);
+        }
+      }
+
+      function sectionTitle(txt) {
+        checkPage(12);
+        pdf.setFillColor(...LGRAY);
+        pdf.rect(mg, y, cW, 8, 'F');
+        pdf.setTextColor(...ACC);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(10);
+        pdf.text(txt, mg + 3, y + 5.5);
+        y += 11;
+      }
+
+      function heroStat(label, val, x, bw) {
+        pdf.setFillColor(245, 250, 247);
+        pdf.roundedRect(x, y, bw - 2, 18, 2, 2, 'F');
+        pdf.setTextColor(...ACC);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(13);
+        pdf.text(val, x + bw / 2 - 1, y + 9, { align: 'center' });
+        pdf.setTextColor(...GRAY);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(7);
+        const lines = pdf.splitTextToSize(label, bw - 4);
+        pdf.text(lines[0], x + bw / 2 - 1, y + 14, { align: 'center' });
+        if (lines[1]) pdf.text(lines[1], x + bw / 2 - 1, y + 17, { align: 'center' });
+      }
+
+      function tableRows(rows, cols) {
+        const colW = cols || [cW * 0.38, cW * 0.18, cW * 0.27, cW * 0.17];
+        checkPage(10);
+        // header
+        pdf.setFillColor(...ACC);
+        pdf.rect(mg, y, cW, 7, 'F');
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(8);
+        let cx = mg + 2;
+        ['Indicador', 'Valor', 'Detalhe', 'Status'].forEach((h, i) => {
+          pdf.text(h, cx, y + 5);
+          cx += colW[i];
+        });
+        y += 7;
+
+        rows.forEach((row, ri) => {
+          checkPage(8);
+          pdf.setFillColor(ri % 2 === 0 ? 250 : 243, ri % 2 === 0 ? 252 : 248, ri % 2 === 0 ? 250 : 245);
+          pdf.rect(mg, y, cW, 7, 'F');
+          pdf.setTextColor(...DARK);
+          pdf.setFont('helvetica', ri === 0 ? 'bold' : 'normal');
+          pdf.setFontSize(8);
+          cx = mg + 2;
+          row.forEach((cell, ci) => {
+            const txt = pdf.splitTextToSize(String(cell), colW[ci] - 3);
+            pdf.text(txt[0], cx, y + 5);
+            cx += colW[ci];
+          });
+          y += 7;
+        });
+        y += 4;
+      }
+
+      function semCard(dot, title, desc) {
+        checkPage(14);
+        const dotColor = dot === 'ok' ? [55, 179, 73] : dot === 'warn' ? [245, 158, 11] : [229, 57, 53];
+        pdf.setFillColor(248, 250, 248);
+        pdf.roundedRect(mg, y, cW, 12, 2, 2, 'F');
+        pdf.setFillColor(...dotColor);
+        pdf.circle(mg + 5, y + 6, 2.5, 'F');
+        pdf.setTextColor(...DARK);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(8.5);
+        pdf.text(title, mg + 10, y + 5.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(...GRAY);
+        const lines = pdf.splitTextToSize(desc, cW - 14);
+        pdf.text(lines[0] || '', mg + 10, y + 10);
+        y += 14;
+      }
+
+      // ── Dados ──
+      const heroStats = anoAtivo === '2026' ? [
+        ['Médicos Ativos', '—'], ['Registros Ativos PJ', '—'], ['Fiscalizações', '313'],
+        ['Sindicâncias Concluídas', '21'], ['PEPs Julgados', '2'], ['Eventos de Educação', '8'],
+        ['Superávit Financeiro', 'R$3,43M'], ['Demandas COLIC', '34'], ['Contratos Ativos', '52']
+      ] : [
+        ['Médicos Ativos', '11.156'], ['Registros Ativos PJ', '2.682'], ['Fiscalizações', '1.947'],
+        ['Sindicâncias Concluídas', '75'], ['PEPs Julgados', '19'], ['Eventos de Educação', '25'],
+        ['Superávit Financeiro', 'R$2,75M'], ['Demandas COLIC', '68'], ['Contratos Ativos', '37']
+      ];
+
+      const semCards = anoAtivo === '2026' ? [
+        ['ok', 'Cartorial — Registro Médico', '283 novas inscrições PF em Jan+Fev. Ritmo acima de 2025.'],
+        ['ok', 'Cartorial — Registro de Empresas', '88 novos registros PJ em Jan+Fev. Receita cartorial R$ 728k.'],
+        ['ok', 'Fiscalização — DEFIS', '313 vistorias no 1º trimestre. 26 municípios. 1.274 irregularidades.'],
+        ['warn', 'Processos Éticos / Sindicâncias', '23 instauradas · 21 julgadas em Jan–Abr. PEPs julgados: 2.'],
+        ['ok', 'CODAME', '132 processos gerados e 162 ofícios no 1º trimestre.'],
+        ['ok', 'Educação Médica Continuada', '8 eventos no 1º trimestre. Média 2,7/mês, acima de 2025.'],
+        ['ok', 'COLIC — Compras, Licitações e Contratos', '34 processos · 52 contratos vigentes (+40% vs 2025).'],
+        ['warn', 'Cobrança de Anuidades — 2026', 'PF: — · PJ: —. Dados a serem preenchidos.'],
+      ] : [
+        ['ok', 'Cartorial — Registro Médico', 'Meta de médicos ativos atingida (11.156 > 11.000). Satisfação chegou a 90% no 2º semestre.'],
+        ['warn', 'Cartorial — Registro de Empresas', '446 novas empresas de 500 previstas (89%). Satisfação PJ abaixo da meta de 90%.'],
+        ['ok', 'Fiscalização — DEFIS', '1.947 fiscalizações vs 268 em 2024 — crescimento de 627%. Cobertura de 145 municípios.'],
+        ['warn', 'Processos Éticos / Sindicâncias', 'Taxa de conclusão de sindicâncias em 44% (meta: 75%). PEPs julgados: 45% (meta: 75%).'],
+        ['ok', 'CODAME', 'Crescimento expressivo no 2º semestre: processos gerados saltaram de 42 para 131.'],
+        ['ok', 'Educação Médica Continuada', '25 eventos realizados cobrindo ética, especialidades e atualização clínica.'],
+        ['ok', 'COLIC — Compras, Licitações e Contratos', '68 demandas tramitadas · 37 finalizadas · 37 contratos ativos.'],
+        ['warn', 'Cobrança de Anuidades — jan/2026', 'PF: — · PJ: —. Dados a serem preenchidos.'],
+      ];
+
+      const kpiRows = anoAtivo === '2026' ? [
+        ['Médicos Ativos', '—', 'Ref. 2025: 11.156', 'Aguardando'],
+        ['Fiscalizações Realizadas', '313', 'Agente: 270 · Médico: 43', '1º Trimestre'],
+        ['Empresas Registradas', '88', 'Jan: 39 · Fev: 49', 'Jan/Fev'],
+        ['Sindicâncias Instauradas', '23', '21 julgadas · 95 em trâmite', 'Jan–Abr'],
+        ['Processos CODAME', '132', '162 ofícios · 40 esclarec.', '1º Trimestre'],
+        ['Eventos Ed. Médica', '8', 'São Luís (7) · Imperatriz (1)', 'Realizado'],
+        ['Superávit Financeiro', 'R$ 3,43M', 'Receita: R$ 5,47M · Jan/Mar', 'Positivo'],
+        ['Demandas COLIC', '34', '29 em andamento · 4 PAS', 'Mar/2026'],
+        ['Contratos Ativos', '52', '+40% vs 2025', 'Gerenciados'],
+        ['Anuidades PF — Recebidas', '84,08%', '39.819 de 47.361 geradas', 'Abr/2026'],
+        ['Anuidades PJ — Recebidas', '77,30%', '9.735 de 12.593 geradas', 'Em aberto: 2.858'],
+        ['Proc. Consulta', '9', '31 em trâmite · 0 aprovados', 'Jan–Abr'],
+      ] : [
+        ['Médicos Ativos', '11.156', 'Meta: >11.000', 'Atingida'],
+        ['Fiscalizações Realizadas', '1.947', '+627% vs 2024', 'Crescimento'],
+        ['Empresas Registradas Ativas', '2.682', '446 novas em 2025', 'Meta: 500'],
+        ['Sindicâncias Instauradas', '100', '75 concluídas · taxa 44%', 'Meta: 75%'],
+        ['Processos CODAME Gerados', '173', '+212% no 2º semestre', 'Meta atingida'],
+        ['Eventos Ed. Médica', '25', 'São Luís e Imperatriz', 'Realizado'],
+        ['Superávit Financeiro', 'R$ 2,75M', 'Receita: R$ 11,6M', 'Positivo'],
+        ['Demandas COLIC', '68', '37 finalizadas · 26 em andamento', '54,4% concluídas'],
+        ['Contratos Ativos', '37', 'CT, NE e ARP vigentes', 'Gerenciados'],
+        ['Anuidades PF — Recebidas', '71,9%', '33.785 de 46.973 geradas', 'Inadimp: 28,1%'],
+        ['Anuidades PJ — Recebidas', '64,6%', '8.026 de 12.432 geradas', 'Inadimp: 35,4%'],
+        ['Proc. Consulta', '21', 'Instaurados em 2025', 'Gerenciados'],
+      ];
+
+      // ── Página 1 ──
+      addHeader(true);
+
+      // Banner hero
+      pdf.setFillColor(0, 100, 60);
+      pdf.rect(mg, y, cW, 12, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(12);
+      pdf.text('Resultados CRM-MA ' + anoAtivo + (anoAtivo === '2026' ? ' — 1\u00BA Trimestre' : ''), mg + 4, y + 8);
+      y += 14;
+
+      // Hero stats — 3 por linha
+      checkPage(22);
+      const bw = cW / 3;
+      for (let i = 0; i < heroStats.length; i++) {
+        if (i % 3 === 0) {
+          if (i > 0) y += 20;
+          checkPage(22);
+        }
+        heroStat(heroStats[i][0], heroStats[i][1], mg + (i % 3) * bw, bw);
+      }
+      y += 22;
+
+      // Status por setor
+      sectionTitle('Status por Setor');
+      semCards.forEach(([dot, title, desc]) => semCard(dot, title, desc));
+
+      // Indicadores consolidados
+      sectionTitle('Indicadores Consolidados');
+      tableRows(kpiRows);
+
+      addFooter();
+      pdf.save('CRM-MA_Visao_Geral_' + anoAtivo + '.pdf');
+    } catch(e) {
+      alert('Erro ao gerar PDF: ' + e.message);
+    } finally {
+      btn.textContent = '📄 PDF';
+      btn.disabled = false;
+    }
+  }, 100);
+}
+
+// ── GERAÇÃO DE EXCEL ──
+function gerarExcel() {
+  const anoAtivo = document.querySelector('.year-sel-btn.active')?.textContent?.trim() || '2025';
+
+  const dados2025 = [
+    ['Indicador', 'Valor', 'Detalhe', 'Status'],
+    ['Médicos Ativos', '11.156', 'Meta: >11.000', 'Atingida'],
+    ['Registros Ativos PJ', '2.682', '446 novas em 2025', 'Meta: 500'],
+    ['Fiscalizações Realizadas', '1.947', '+627% vs 2024', 'Crescimento'],
+    ['Sindicâncias Instauradas', '100', '75 concluídas · taxa 44%', 'Meta: 75%'],
+    ['Sindicâncias Concluídas', '75', 'Taxa: 44% · Meta: 75%', 'Abaixo da meta'],
+    ['PEPs Julgados', '19', 'Taxa: 45% · Meta: 75%', 'Abaixo da meta'],
+    ['Processos CODAME Gerados', '173', '+212% no 2º semestre', 'Meta atingida'],
+    ['Eventos Educação Médica', '25', 'São Luís e Imperatriz', 'Realizado'],
+    ['Superávit Financeiro', 'R$ 2.751.812', 'Receita: R$ 11,6M', 'Positivo'],
+    ['Demandas COLIC', '68', '37 finalizadas · 26 em andamento', '54,4% concluídas'],
+    ['Contratos Ativos', '37', 'CT, NE e ARP vigentes', 'Gerenciados'],
+    ['Proc. Consulta', '21', 'Instaurados em 2025', 'Gerenciados'],
+    ['Anuidades PF — Recebidas', '71,9%', '33.785 de 46.973 geradas', 'Inadimp: 28,1%'],
+    ['Anuidades PJ — Recebidas', '64,6%', '8.026 de 12.432 geradas', 'Inadimp: 35,4%'],
+  ];
+
+  const dados2026 = [
+    ['Indicador', 'Valor', 'Detalhe', 'Status'],
+    ['Médicos Ativos', '—', 'Ref. 2025: 11.156', 'Aguardando'],
+    ['Registros Ativos PJ', '—', 'Ref. 2025: 2.682 ativos', 'Aguardando'],
+    ['Fiscalizações Realizadas', '313', 'Agente: 270 · Médico: 43', '1º Trimestre'],
+    ['Sindicâncias Instauradas', '23', '21 julgadas · 95 em trâmite', 'Jan–Abr'],
+    ['Sindicâncias Concluídas', '21', 'Jan–Abr/2026', 'Jan–Abr'],
+    ['PEPs Julgados', '2', 'Jan: 1 · Fev: 1', 'Jan–Abr'],
+    ['Processos CODAME Gerados', '132', '162 ofícios · 40 esclarec.', '1º Trimestre'],
+    ['Eventos Educação Médica', '8', 'São Luís (7) · Imperatriz (1)', 'Realizado'],
+    ['Superávit Financeiro', 'R$ 3.425.588', 'Receita: R$ 5,47M · Jan/Mar', 'Positivo'],
+    ['Demandas COLIC', '34', '29 em andamento · 4 PAS', 'Mar/2026'],
+    ['Contratos Ativos', '52', '+40% vs 2025 (37 contratos)', 'Gerenciados'],
+    ['Proc. Consulta', '9', '31 em trâmite · 0 aprovados', 'Jan–Abr'],
+    ['Anuidades PF — Recebidas', '84,08%', '39.819 de 47.361 geradas', 'Posição Abr/2026'],
+    ['Anuidades PJ — Recebidas', '77,30%', '9.735 de 12.593 geradas', 'Em aberto: 2.858'],
+  ];
+
+  const dados = anoAtivo === '2026' ? dados2026 : dados2025;
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(dados);
+
+  // Larguras das colunas
+  ws['!cols'] = [{ wch: 35 }, { wch: 18 }, { wch: 38 }, { wch: 22 }];
+
+  XLSX.utils.book_append_sheet(wb, ws, `Visão Geral ${anoAtivo}`);
+  XLSX.writeFile(wb, `CRM-MA_Visao_Geral_${anoAtivo}.xlsx`);
 }
 </script>
 </body>
